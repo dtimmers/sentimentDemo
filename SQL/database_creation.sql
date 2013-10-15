@@ -13,7 +13,7 @@ population INT,
 area FLOAT(5,1),
 radius FLOAT(5,4),
 PRIMARY KEY (city_id),
-FOREIGN KEY States(state_id) REFERENCES States(state_id)
+FOREIGN KEY (state_id) REFERENCES States(state_id)
 );
 
 /* Add a foreign key to the Cities table */
@@ -28,9 +28,9 @@ FOREIGN KEY (city_id) REFERENCES Cities(city_id)
 );
 
 /* Create index on datetime and city_id for fast searches*/
-CREATE INDEX dateCityIndex
+CREATE INDEX dateCityIndex 
 ON Tweets (datetime, city_id);
 
 /* Creat index on state for fast searches*/
-CREATE INDEX cityIndex
+CREATE INDEX cityIndex 
 ON Tweets (city_id);
