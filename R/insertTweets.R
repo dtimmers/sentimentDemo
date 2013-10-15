@@ -32,14 +32,14 @@ CleanTweets<-function(tweetDF)
   txt <- tweetDF$text
   # URLs
   txt <- str_replace_all(txt,"http://t.co/[a-z,A-Z,0-9]{7,10}","")
+  # references to other screennames and parts of retweet header
+  txt <- str_replace_all(txt,"@[[:alnum:]]*","")
   # retweet header
-  txt <- str_replace(txt,"RT @[a-z,A-Z,0-9]*:","")
-  # references to other screennames
-  txt <- str_replace_all(txt,"@[a-z,A-Z]*","")
+  txt <- str_replace(txt,"RT ","")
   # &amp
   txt <- str_replace_all(txt,"&amp","")
   # hexidecimal characters
-  txt <- str_replace_all(txt,"[[:xdigit:]]","")
+  txt <- str_replace_all(txt,"[\x01-\x1f\x7f-\xff]","")
   # digits
   txt <- str_replace_all(txt,"[[:digit:]]"," ")
   # punctuation
@@ -48,6 +48,6 @@ CleanTweets<-function(tweetDF)
   txt <- str_replace_all(txt, "\\s+"," ")
   txt <- str_trim(txt, side="both")
   
-  tweetDF$clean_text <- txt
+  tweetDF$clean_text <- tolower(txt)
   return(tweetDF)
 }
