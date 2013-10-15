@@ -1,0 +1,227 @@
+/* datascience - an xhtml/css website layout by Dennis Timmers 
+Version: 1.0, July 2013 */
+
+body
+{
+	background: #e0e0e0 url(../img/bodybg.gif);
+	color:#505050;
+	font-size: 16px;
+	font: Verdana,Georgia,Tahoma,Arial,sans-serif;
+	margin:0;
+	padding:0;
+	text-align:center;
+}
+
+#container
+{
+	margin:0 auto;
+	text-align:left;
+	width:1000px;
+}
+
+#siteheader
+{
+	background:url(../img/header.png) top center no-repeat;
+	color:#ffffff;
+	font-weight:400;
+	height:290px;
+	width:1000px;
+	margin: 20px 0px 0px 0px;
+	padding:0;
+	text-align:center;
+}
+
+#menu ul,
+#menu li,
+#menu span,
+#menu a {
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+#menu {
+  height: 49px;
+  border-radius: 5px 5px 0 0;
+  background: #141414;
+  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAxCAIAAACUDVRzAAAAA3NCSVQICAjb4U/gAAAALElEQVQImWMwMrJi+v//PxMDw3+m//8ZoPR/qBgDEhuXGLoeYswhXg8R5gAAdVpfoJ3dB5oAAAAASUVORK5CYII=) 100% 100%; 
+  border-bottom: 2px solid #0fa1e0;
+}
+#menu:after,
+#menu ul:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+#menu a {
+  background: #141414;
+  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAxCAIAAACUDVRzAAAAA3NCSVQICAjb4U/gAAAALElEQVQImWMwMrJi+v//PxMDw3+m//8ZoPR/qBgDEhuXGLoeYswhXg8R5gAAdVpfoJ3dB5oAAAAASUVORK5CYII=) 100% 100%; 
+  color: #ffffff;
+  display: inline-block;
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 49px;
+  padding: 0 20px;
+  text-decoration: none;
+}
+#menu ul {
+  list-style: none;
+}
+#menu > ul {
+  float: left;
+}
+#menu > ul > li {
+  float: left;
+}
+#menu > ul > li:hover:after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #0fa1e0;
+  margin-left: -10px;
+}
+
+#menu > ul > li.active > a {
+  background: #070707;
+  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAxCAIAAACUDVRzAAAAA3NCSVQICAjb4U/gAAAALklEQVQImWNQU9Nh+v//PxMDw3+m//8ZkNj/mRgYIHxy5f//Z0BSi18e2TwS5QG4MGB54HL+mAAAAABJRU5ErkJggg==) 100% 100%; 
+}
+#menu > ul > li:hover > a {
+  background: #070707;
+  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAxCAIAAACUDVRzAAAAA3NCSVQICAjb4U/gAAAALklEQVQImWNQU9Nh+v//PxMDw3+m//8ZkNj/mRgYIHxy5f//Z0BSi18e2TwS5QG4MGB54HL+mAAAAABJRU5ErkJggg==) 100% 100%; 
+}
+#menu .has-sub {
+  z-index: 1;
+}
+#menu .has-sub:hover > ul {
+  display: block;
+}
+#menu .has-sub ul {
+  display: none;
+  position: absolute;
+  width: 200px;
+  top: 100%;
+  left: 0;
+}
+#menu .has-sub ul li {
+  *margin-bottom: -1px;
+}
+#menu .has-sub ul li a {
+  background: #0fa1e0;
+  border-bottom: 1px dotted #6fc7ec;
+  filter: none;
+  font-size: 11px;
+  display: block;
+  line-height: 120%;
+  padding: 10px;
+}
+#menu .has-sub ul li:hover a {
+  background: #0c7fb0;
+}
+
+#wrap {
+	float:left;
+	width:1000px;
+	margin:0 auto;
+	background:white;
+}
+
+#content {
+	float:left;
+	width:690px;
+	padding: 20px 40px 10px 40px;
+	background:transparent;
+}
+
+#sidebar
+{
+	float:right;
+	padding: 10px;
+	width:210px;
+	background:transparent;
+	text-align:left;
+	font-size:14px;
+}
+
+#sidebar h1
+{
+	font-size:14px;
+}
+
+#sidebar.img
+{
+	text-align:center;
+}
+
+#footer {
+	clear:both;
+	background:#cc9;
+}
+
+.error {
+	margin: 10px auto;
+	width: 400px;
+    border: 1px solid;
+    padding:15px 10px 15px 50px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    color: #D8000C;
+    background-color: #FFBABA;
+    background-image: url('../img/error.png');
+}
+
+.centered {
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+img.centered {
+	display: block;
+	margin-left: auto;
+  margin-right: auto; 
+}
+
+img.left {
+  float:left;
+  margin-right: 20px;
+}
+
+input.right {
+	float: right;
+}
+
+select.selectPlot {
+	display: block;
+	margin-left: auto;
+    margin-right: auto; 
+	padding: 2px;
+    width: 130px;
+}
+
+p
+{
+	line-height:1.5em;
+	margin:0 0 15px;
+}
+
+a
+{
+	color:#0fa1e0;
+	font-weight:700;
+	text-decoration:none;
+}
+
+a:hover
+{
+	color:#d04a10;
+}
+
+h3
+{
+	margin:0;
+}

@@ -1,0 +1,12 @@
+<form action={{ action }} method={{ method }} class='select'>
+	<select name={{ name }}>
+		{% for option in options %}
+			{% if selected == option['value'] %}
+				<option value={{ option['value'] }} selected> {{ option['name'] }} </option>
+			{% else %}
+				<option value={{ option['value']}}> {{ option['name'] }} </option>
+			{% endif %}
+		{% endfor %}
+	</select>
+	<input class='right' type="submit" value={{ submit }}>
+</form>

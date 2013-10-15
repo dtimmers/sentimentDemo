@@ -1,0 +1,14 @@
+		<div id='menu'>
+			<ul>
+				{% for link in menu %}
+					{% if active==link[0] %}
+						<li class='active'>
+					{% else %}
+						<li>
+					{% endif %}
+				<a href={{ link[1] }}><span> {{ link[0] }} </span></a></li>
+				{% endfor %}
+			</ul>
+		</div>
+
+
