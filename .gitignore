@@ -6,3 +6,6 @@ OAuth.RData
 
 # Example code in package build process
 *-Ex.R
+
+# OS created files
+*~
