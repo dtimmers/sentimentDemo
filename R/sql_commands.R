@@ -1,20 +1,28 @@
+library(RMySQL)
+usr <- 'Ruser'
+pw <- 'ouRs3cret!'
+db_name <- 'sentiment_db'
+
+# Opens a connection to the database and sends a query
 send_query <- function(cmd, db_name='sentiment_db'){
-  con <- dbConnect( MySQL(), user='Ruser', password='ouRs3cret!', 
+  con <- dbConnect( MySQL(), user=usr, password=pw, 
                     dbname=db_name, host='localhost')
-  on.exit(dbDisconnect(con))
   dbSendQuery(con, cmd)
+  dbDisconnect(con)
 }
 
-sql_create_tables <- function(db_name='sentiment_db'){
+# Initialize all the tables in the database.
+# The SQL commands are all given in the file /SQL/database_creation.sql
+sql_initialize_tables <- function(db_name='sentiment_db'){
   cmd_vec <- cut_commands('../SQL/database_creation.sql')  
   for( sql_cmd in cmd_vec){
-    print(sql_cmd)
     send_query(sql_cmd)
-  }  
+  }
+  cat(paste('Successfully created all the necessary tables on the database', db_name))
 }
 
-# Given a sql file it returns the separate sql commands in the file
-cut_commands <- function(fn){
+# Returns the separate commands in the sql file with filename fn
+break_sql_file <- function(fn){
   lines <- readLines(fn)
   
   idx_cut <- which(regexpr('^$|^/*', lines)==1)
