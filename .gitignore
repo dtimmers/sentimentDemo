@@ -1,6 +1,9 @@
 # Authorization data
 OAuth.RData
 
+# Development files
+dev.R
+
 # History files
 .Rhistory
 
