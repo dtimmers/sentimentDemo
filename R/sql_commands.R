@@ -22,7 +22,7 @@ sql_initialize_tables <- function(){
 
 fill_state <- function(tab='state'){
   load('data/state_info.RData')
-  vals <- cols_df_to_values(state_info[, c('State', 'Abr')])
+  vals <- collapse_cols_df(state_info[, c('State', 'Abr')])
   cmd <- paste('INSERT INTO', tab, '(name, abr) VALUES', vals)
   send_query(cmd)  
 }
@@ -30,7 +30,7 @@ fill_state <- function(tab='state'){
 fill_city <- function(tab='city'){
   load('data/state_info.RData')
   df <- state_info[, c('Abr', 'City', 'Population', 'Land.Area.in.Square.Miles', 'radius')]
-  df <- df_num_to_string(df, c('Abr', 'City'))
+  df <- df_val_to_string(df, c('Abr', 'City'))
   n <- nrow(df)
   for( i in 1:n ){
     row <- df[i,]
@@ -47,7 +47,7 @@ insert_tweet_df <- function(tw){
   
 }
 
-df_num_to_string <- function(df, str_cols){
+df_val_to_string <- function(df, str_cols=NULL){
   if( is.null(str_cols) ){
     str_cols <- 1:ncol(df)
   }  
@@ -59,7 +59,7 @@ df_num_to_string <- function(df, str_cols){
 }
 
 collapse_cols_df <- function(df, str_cols=NULL){
-  df <- df_num_to_string(df, str_cols=str_cols)
+  df <- df_val_to_string(df, str_cols=str_cols)
   vals <- apply(df, 1, function(x) paste(x, collapse=", "))
   return(paste('(', paste(vals, collapse='), ('),');', sep=''))
 }
