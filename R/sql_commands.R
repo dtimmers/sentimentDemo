@@ -6,28 +6,49 @@ db_name <- 'sentiment_db'
 # Opens a connection to the database and sends a query
 send_query <- function(cmd, db_name='sentiment_db'){
   con <- dbConnect( MySQL(), user=usr, password=pw, dbname=db_name, host='localhost')
-  dbSendQuery(con, cmd)
-  dbDisconnect(con)
+  tryCatch(dbSendQuery(con, cmd),
+           error=function(msg) {
+             message(cat(paste(msg)))
+           },
+           finally={
+             dbDisconnect(con)
+           }
+  )
+}
+
+get_query <- function(cmd, db_name='sentiment_db'){
+  con <- dbConnect( MySQL(), user=usr, password=pw, dbname=db_name, host='localhost')
+  res <- tryCatch({
+    res <- dbGetQuery(con, cmd)},
+    error=function(msg) {
+      message(cat(paste(msg)))
+      res <- NULL
+    },
+    finally={
+      dbDisconnect(con)
+    }
+  )
+  return(res)
 }
 
 # Initialize all the tables in the database.
 # The SQL commands are all given in the file /SQL/database_creation.sql
 sql_initialize_tables <- function(){
-  cmd_vec <- cut_commands('../SQL/database_creation.sql')  
+  cmd_vec <- sql_cut_queries('../SQL/database_creation.sql')  
   for( sql_cmd in cmd_vec){
     send_query(sql_cmd)
   }
   cat(paste('Successfully created all the necessary tables on the database', db_name))
 }
 
-fill_state <- function(tab='state'){
+sql_fill_state <- function(tab='state'){
   load('data/state_info.RData')
   vals <- collapse_cols_df(state_info[, c('State', 'Abr')])
   cmd <- paste('INSERT INTO', tab, '(name, abr) VALUES', vals)
   send_query(cmd)  
 }
 
-fill_city <- function(tab='city'){
+sql_fill_city <- function(tab='city'){
   load('data/state_info.RData')
   df <- state_info[, c('Abr', 'City', 'Population', 'Land.Area.in.Square.Miles', 'radius')]
   df <- df_val_to_string(df, c('Abr', 'City'))
@@ -43,8 +64,18 @@ fill_city <- function(tab='city'){
   }
 }
 
-insert_tweet_df <- function(tw){
-  
+sql_insert_tweet_df <- function(tw_df){
+  Ntweet <- nrow(tw_df)
+  cols <- c('city_id', 'created', 'text', 'cleanText', 'score', 'screenName')
+  #for(i in 1:Ntweet){
+  for(i in 1:1){
+    tweet <- tw_df[i, cols]
+    tweet <- df_val_to_string(tweet, c('created', 'text', 'cleanText', 'screenName'))
+    cmd <- 'INSERT INTO tweet (city_id, datetime, txt, cleanTxt, score, screenName) VALUES'
+    cmd <- paste(cmd, paste('(',paste(tweet, collapse=","),');'))
+    print(cmd)
+    send_query(cmd)
+  }
 }
 
 df_val_to_string <- function(df, str_cols=NULL){
@@ -65,7 +96,7 @@ collapse_cols_df <- function(df, str_cols=NULL){
 }
 
 # Returns the separate commands in the sql file with filename fn
-break_sql_file <- function(fn){
+sql_cut_queries <- function(fn){
   lines <- readLines(fn)
   
   idx_cut <- which(regexpr('^$|^/*', lines)==1)
