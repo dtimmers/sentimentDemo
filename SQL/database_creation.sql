@@ -11,7 +11,9 @@ state_id INT,
 city CHAR(20),
 population INT,
 area FLOAT(5,1),
-radius FLOAT(5,4),
+radius FLOAT(6,4),
+lat DOUBLE(8,5),
+lng DOUBLE(8,5),
 PRIMARY KEY (city_id),
 FOREIGN KEY (state_id) REFERENCES state(state_id)
 );
