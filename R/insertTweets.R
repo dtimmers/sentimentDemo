@@ -4,6 +4,21 @@ library("RJSONIO")
 library("twitteR")
 library("stringr")
 
+# getCurRateLimitInfo() gives information about the current rate limit
+
+# Downloads tweets from geocode locations of the largest cities in the US states.
+# The tweets are uploaded to a MySQL relational database.
+DownLoadTweets <- function(){
+  # Login()
+  
+  city_cmd <- "SELECT city, radius, lat, lng, name AS state, abr FROM"
+  city_cmd <- paste(city_cmd, "city JOIN state USING ( state_id )")
+  con <- dbConnect( MySQL(), user=usr, password=pw, dbname=db_name, host='localhost')
+  city_info <- get_query(city_cmd, con=con)
+  View(city_info)
+  dbDisconnect(con)
+}
+
 # Get authorization to search tweets
 # See Readme file for creating your login credentials
 # and saving it into 'OAuth.RData'
