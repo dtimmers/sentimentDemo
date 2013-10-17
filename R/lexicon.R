@@ -1,10 +1,12 @@
+library(tm)
+library(SnowballC)
 # Returns a keyed vector with pairs (key, value)=(word, score),
 # where score is the sentiment score of the word.
 # The score is in the range -1 to 1.
 get_lex <- function(sent_col='priorpolarity', word_col='word'){
   df <- read_lex()
   df <- add_scores_lex(df, sent_col=sent_col)
-  return( setNames( unlist(df['score']), unlist(df[word_col])) )
+  return( setNames( unlist(df['score'], use.names=F), unlist(df[word_col], use.names=F)) )
 }
 
 # Reads the MPQA lexicon and turns it into a dataframe.
@@ -24,10 +26,12 @@ read_lex <- function(){
   
   ncol <- length(splitLines[[1]])
   colnames <- splitLines[[1]][seq(from=1, to=ncol, by=2)]  
-  linesMatrix <- matrix(unlist(splitLines), ncol = ncol, byrow = TRUE)
+  linesMatrix <- matrix(unlist(splitLines, use.names=F), ncol = ncol, byrow = TRUE)
   linesMatrix <- linesMatrix[, seq(from=2, to=ncol, by=2)]
   colnames(linesMatrix) <- gsub('[[:digit:]]', '', colnames)
   df <- as.data.frame(linesMatrix, stringsAsFactors=F)
+  word_stem <- stemDocument(unlist(df$word, use.names=F), language='en')
+  df$word <- word_stem
   return( unique(df) )
 }
 
@@ -40,6 +44,7 @@ add_scores_lex <- function(lex_df, sent_col='priorpolarity'){
                      'positive'=1
   )
   
-  lex_df['score'] <- unlist( score_keys[unlist(lex_df[sent_col])], use.names=F)
+  lex_df['score'] <- unlist( score_keys[unlist(lex_df[sent_col], use.names=F)], 
+                             use.names=F)
   return(lex_df)
 }
