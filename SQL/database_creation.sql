@@ -22,10 +22,10 @@ ADD CONSTRAINT uc_city UNIQUE (state_id,city)
 /* Add a foreign key to the Cities table */
 CREATE TABLE tweet (
 tweet_id INT NOT NULL AUTO_INCREMENT,
-city_id INT,
+city_id INT NOT NULL,
 datetime DATETIME NOT NULL,
-txt CHAR(200),
-cleanTxt CHAR(200),
+txt CHAR(150) CHARACTER SET utf8,
+cleanTxt CHAR(150) CHARACTER SET utf8,
 score FLOAT(5,2),
 screenName CHAR(20),
 PRIMARY KEY (tweet_id),
