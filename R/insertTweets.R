@@ -2,6 +2,7 @@ library("bitops")
 library("RCurl")
 library("RJSONIO")
 library("twitteR")
+library("stringr")
 
 # Get authorization to search tweets
 # See Readme file for creating your login credentials
@@ -12,15 +13,22 @@ Login <- function()
   registerTwitterOAuth(twitCred)
 }
 
-#TweetFrame() - return a dataframe based on a search of Twitter
+#TweetSearch() - return a dataframe based on a search term
 # as.data.frame() coerces each list element into a row
 # lapply() applies this to all of the elements in twtList
 # rbind() takes all of the rows and puts them together
 # do.call() gives rbind() all the rows as individual elements
 
-TweetFrame <- function(searchTerm, maxTweets)
+SearchTweet <- function(searchTerm, maxTweets)
 {
   twtList <- searchTwitter(searchTerm,n=maxTweets)
+  return(do.call("rbind",lapply(twtList,as.data.frame)))
+}
+
+#GetTweet() - return a dataframe of tweets
+GetTweet <- function(maxTweets)
+{
+  twtList <- Rtweets(n=maxTweets)
   return(do.call("rbind",lapply(twtList,as.data.frame)))
 }
 
@@ -48,6 +56,20 @@ CleanTweets<-function(tweetDF)
   txt <- str_replace_all(txt, "\\s+"," ")
   txt <- str_trim(txt, side="both")
   
-  tweetDF$clean_text <- tolower(txt)
+  tweetDF$cleanText <- tolower(txt)
   return(tweetDF)
+}
+
+ScoreTweets <- function(tweetDF, lex_vector){
+  # First stem the words in the tweets
+  stem_txt <- sapply(tweetDF$cleanText, function(x) StemText(x))
+  # Take the median among the word scores to compute the overall sentiment score
+  sc <- sapply(stem_txt, function(x) median(lex_vector[unlist(strsplit(x," "))], na.rm=T))
+  sc[is.na(sc)] <- 0
+  tweetDF$score <- sc
+  return(tweetDF)
+}
+
+StemText <- function(txt){
+  return(paste(stemDocument(unlist(strsplit(txt, " ")), language='en'), collapse=" "))
 }
