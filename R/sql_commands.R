@@ -4,7 +4,7 @@ pw <- 'ouRs3cret!'
 db_name <- 'sentiment_db'
 
 # Opens a connection to the database and sends a query
-sqlSendQuery <- function(cmd, db_name='sentiment_db', con=NULL){
+sqlSendQuery <- function(cmd, con=NULL){
   start_con <- F
   if(is.null(con)){
     start_con <- T
@@ -12,16 +12,9 @@ sqlSendQuery <- function(cmd, db_name='sentiment_db', con=NULL){
   }
   tryCatch(dbSendQuery(con, cmd),
            error=function(msg) {
-             if( regexpr('Duplicate entry', msg)[1]!=-1) { 
-               res<-NULL
-             }
-             else{
+             if( regexpr('Duplicate entry', msg)[1]==-1) {
                message(cat(paste(msg)))
-               res <- NULL
              }
-           },
-           warning=function(msg) {
-             res <- NULL
            },
            finally={
              if( start_con ){
@@ -31,8 +24,10 @@ sqlSendQuery <- function(cmd, db_name='sentiment_db', con=NULL){
   )
 }
 
-sqlGetQuery <- function(cmd, db_name='sentiment_db', con=NULL){
+sqlGetQuery <- function(cmd, con=NULL){
+  start_con <- F
   if(is.null(con)){
+    start_con <- T
     con <- dbConnect( MySQL(), user=usr, password=pw, dbname=db_name, host='localhost')
   }
   res <- tryCatch({
@@ -45,7 +40,7 @@ sqlGetQuery <- function(cmd, db_name='sentiment_db', con=NULL){
       res <- NULL
     },
     finally={
-      if( is.null(con) ){
+      if( start_con ){
         dbDisconnect(con)
       }
     }
@@ -71,6 +66,7 @@ sqlFillState <- function(tab='state'){
 
 sqlFillCity <- function(tab='city'){
   load('data/state_info.RData')
+  View(state_info)
   df <- state_info[, c('Abr', 'City', 'Population', 'Land.Area.in.Square.Miles', 
                        'radius', 'lat', 'lng')]
   df <- dfValToString(df, c('Abr', 'City'))
@@ -108,6 +104,19 @@ sqlGetCity <- function() {
   city_cmd <- "SELECT city_id, lat, lng, radius FROM"
   city_cmd <- paste(city_cmd, "city JOIN state USING ( state_id )")
   return(sqlGetQuery(city_cmd))
+}
+
+sqlGetDateCityScores <- function(term, from_date=NULL){
+  cmd <- 'SELECT DATE(tweet.datetime) AS date, state.name, AVG(tweet.score) AS score'
+  cmd <- paste(cmd, 'FROM tweet JOIN state JOIN city')
+  cmd <- paste(cmd, 'ON tweet.city_id=city.city_id AND city.state_id=state.state_id')
+  cmd <- paste(cmd, " WHERE tweet.score IS NOT NULL AND tweet.searchTerm='",term,"'", sep="")
+  if(!is.null(from_date)){
+    cmd <- paste(cmd, "AND date(tweet.datetime)>='", from_date,"'", sep="")
+  }
+  cmd <- paste(cmd, 'GROUP BY DATE(tweet.datetime), state.name')
+  cmd <- paste(cmd, 'ORDER BY DATE(tweet.datetime);')
+  return(sqlGetQuery(cmd))
 }
 
 dfValToString <- function(df, str_cols=NULL){
