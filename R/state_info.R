@@ -90,8 +90,9 @@ get_city_area <- function(){
     t[i,]$City <- gsub("New York", "New York City", t[i,]$City)
   }
   
-  # Add in Honolulu
+  # TODO: Add in Honolulu manually
   t <- rbind( t, c(602, 'Honolulu', 'Hawaii', 390738 , 68.4))
+  t <- rbind(t, c(603, 'Burlington', 'Vermont', 42282, 15.5))
   return(t)
 }
 
@@ -104,16 +105,16 @@ construct_geocode_url <- function(address, return.call = "json", sensor = "false
 }
 
 # Returns the longitude and latitude of an address
-# Tries num_tries times to recursively find the address
+# Recurstively tries num_tries times to find the address
 # If no address is found it returns NULL
 get_geocode <- function(address, num_tries=20) {
   if(num_tries>0){
     u <- construct_geocode_url(address)
     doc <- getURL(u)
-    x <- fromJSON(doc)
+    x <<- fromJSON(doc)
     if(x$status=="OK") {
-      lat <- x$results[[1]]$geometry$location$lat
-      lng <- x$results[[1]]$geometry$location$lng
+      lat <- x$results[[1]]$geometry$location['lat']
+      lng <- x$results[[1]]$geometry$location['lng']
       return(c(lat, lng))
     } 
     else {
