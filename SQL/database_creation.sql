@@ -35,7 +35,7 @@ PRIMARY KEY (tweet_id),
 FOREIGN KEY (city_id) REFERENCES city(city_id)
 );
 
-/* Create index on datetime and city_id for fast searches*/
+/* Create index on datetime, city_id and searchTerm for fast searches*/
 CREATE INDEX dateCityIndex 
 ON tweet (datetime, city_id);
 
