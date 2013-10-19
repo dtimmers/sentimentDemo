@@ -3,9 +3,9 @@ library(SnowballC)
 # Returns a keyed vector with pairs (key, value)=(word, score),
 # where score is the sentiment score of the word.
 # The score is in the range -1 to 1.
-get_lex <- function(sent_col='priorpolarity', word_col='word'){
-  df <- read_lex()
-  df <- add_scores_lex(df, sent_col=sent_col)
+GetLex <- function(sent_col='priorpolarity', word_col='word'){
+  df <- ReadLex()
+  df <- ScoreLex(df, sent_col=sent_col)
   return( setNames( unlist(df['score'], use.names=F), unlist(df[word_col], use.names=F)) )
 }
 
@@ -14,7 +14,7 @@ get_lex <- function(sent_col='priorpolarity', word_col='word'){
 # http://mpqa.cs.pitt.edu/lexicons/subj_lexicon/
 # The scores are string-valued: either 'positive', 'negative', 'neutral', 
 # 'both' or 'weak negative'
-read_lex <- function(){
+ReadLex <- function(){
   lines <- readLines('data/subjectivity_lexicon_MPQA.tff')
   rows <- gsub(' len=1', "", lines)
   rows <- gsub('type=[a-z]+\\s', '', rows)
@@ -36,7 +36,7 @@ read_lex <- function(){
 }
 
 # Turn string-valued scores into numeric scores and add this to the dataframe lex_df.
-add_scores_lex <- function(lex_df, sent_col='priorpolarity'){
+ScoreLex <- function(lex_df, sent_col='priorpolarity'){
   score_keys <- list('negative'=-1,
                      'weakneg'=-0.5,
                      'neutral'=0,
