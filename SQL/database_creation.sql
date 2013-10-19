@@ -23,7 +23,7 @@ ADD CONSTRAINT uc_city UNIQUE (state_id,city)
 
 /* Add a foreign key to the Cities table */
 CREATE TABLE tweet (
-tweet_id INT NOT NULL AUTO_INCREMENT,
+tweet_id BIGINT NOT NULL,
 city_id INT NOT NULL,
 datetime DATETIME NOT NULL,
 txt CHAR(150) CHARACTER SET utf8,
@@ -34,9 +34,6 @@ searchTerm CHAR(20),
 PRIMARY KEY (tweet_id),
 FOREIGN KEY (city_id) REFERENCES city(city_id)
 );
-
-ALTER TABLE tweet 
-ADD CONSTRAINT uc_tweet UNIQUE (datetime,screenName, cleanTxt)
 
 /* Create index on datetime and city_id for fast searches*/
 CREATE INDEX dateCityIndex 
