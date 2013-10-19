@@ -3,46 +3,69 @@ library("RCurl")
 library("RJSONIO")
 library("twitteR")
 library("stringr")
-# getCurRateLimitInfo() gives information about the current rate limit
+# If we search a 1000 Tweets, it takes 10 API requests
+# Also Barack Obama uses the term obamacare, otherwise might create difference
+# between positve and negative tweets about obamacare, gogreen
+
+Main <- function(term='obamacare', hrs=1, maxTweets=1000){
+  setwd('~/Projects/sentimentDemo/R')
+  source('lexicon.R')
+  source('sql_commands.R')
+  source('time.R')
+  
+  Login()
+  lex <- GetLex()
+  city <- sqlGetCity()
+  Ntweets <- 1000
+  stop_time <- as.numeric(Sys.time()) + ceiling(hrs*3600)
+  
+  while( as.numeric(Sys.time()<stop_time )){
+    DownloadIteration(city=city, lex=lex, maxTweets=Ntweets, term=term)
+  }
+}
 
 # Downloads tweets from geocode locations of the largest cities in the US states.
 # The tweets are uploaded to a MySQL relational database.
-DownLoadTweets <- function(city=NULL, lex=NULL, maxTweets=40, term='obamacare'){
+# One already has to be OAuth logged in when running an iteration.
+DownloadIteration <- function(city=NULL, lex=NULL, maxTweets=1000, term=term){
   if(is.null(lex)){
     lex <- GetLex()
   }
   if( is.null(city)){
     city <- sqlGetCity()
   }
-  if( length(dbListConnections(MySQL()))>0 ){
-    for( con in dbListConnections(MySQL()) ){
-      dbDisconnect(con)
-    }
-  }
-  Login()
   
+  th <- ceiling(maxTweets/1000)
+  # Set the threshold for sleeping
   for( i in 1:nrow(city)){
     geocode <- city[i, c('lat', 'lng', 'radius')]
-    geocode[3] <- paste(ceiling(20*geocode[3]),'mi',sep='')
+    geocode[3] <- paste(ceiling(10*geocode[3]),'mi',sep='')
     geocode <- paste(geocode, collapse=",")
-    if(i==1){
-      tweetDF <- SearchTweets(term, maxTweets, geocode=geocode)
+    tweetDF <- SearchTweets(term, maxTweets, geocode=geocode)
+    if( !is.null(tweetDF) ){
       tweetDF$city_id <- rep(city[i,]$city_id, nrow(tweetDF))
       tweetDF$searchTerm <- rep(term, nrow(tweetDF))
+      tweetDF <- CleanTweets(tweetDF)
+      tweetDF <- ScoreTweets(tweetDF,lex_vector=lex)
+      tweetDF$text <- sapply(tweetDF[,'text'], function(x) str_replace_all(x,"\'",""))
+      # remove duplicate tweets
+      tweetDF <- unique(tweetDF)
+      sqlInsertTweetDF(tweetDF)
     }
-    else{
-      new_tweets <- SearchTweets(term, maxTweets, geocode=geocode)
-      new_tweets$city_id <- rep(city[i,]$city_id, nrow(new_tweets))
-      new_tweets$searchTerm <- rep(term, nrow(new_tweets))
-      tweetDF <- rbind(tweetDF, new_tweets)
+    # Check whether we have to put the system to sleep
+    t <- GetSleepTime(th)
+    if( t > 0 ){
+      RtoSleep(t)
+    }
+    
+    # Hacker solution as there is an unresolved error with open SQL connections
+    # Close all the open SQL connections if there is more than 1.
+    if( length(dbListConnections(MySQL()))>1 ){
+      for( con in dbListConnections(MySQL()) ){
+        dbDisconnect(con)
+      }
     }
   }
-  tweetDF <- CleanTweets(tweetDF)
-  tweetDF <- ScoreTweets(tweetDF,lex_vector=lex)
-  tweetDF$text <- sapply(tweetDF[,'text'], function(x) str_replace_all(x,"\'",""))
-  # remove duplicate tweets
-  tweetDF <- unique(tweetDF)
-  sqlInsertTweetDF(tweetDF)
 }
 
 # Get authorization to search tweets
@@ -61,13 +84,24 @@ Login <- function()
 # do.call() gives rbind() all the rows as individual elements
 
 SearchTweets <- function(searchTerm, maxTweets, geocode=NULL)
-{
-  if( is.null(geocode)){
-    twtList <- searchTwitter(searchTerm, n=maxTweets) 
-  }
-  else {
-    twtList <-  searchTwitter(searchTerm, n=maxTweets, geocode=geocode) 
-  }
+{ 
+  twtList <- tryCatch({
+    if( is.null(geocode) ){
+      twtList <-searchTwitter(searchTerm, n=maxTweets)
+    }
+    else {
+      twtList <-searchTwitter(searchTerm, n=maxTweets, geocode=geocode)
+    }},
+    error=function(msg) {
+      message(cat(paste(msg)))
+      twtList <- NULL
+    },
+    warning=function(msg) {
+      if( regexpr('tweets were requested but the API can only return', msg)[1]==-1) { 
+        message(cat(paste(msg)))
+      }
+    }
+  )
   return(do.call("rbind",lapply(twtList,as.data.frame)))
 }
 
@@ -108,16 +142,6 @@ ScoreTweets <- function(tweetDF, lex_vector){
   sc[is.na(sc)] <- 'null'
   tweetDF$score <- sc
   return(tweetDF)
-}
-
-# Twitter sets rate limits for downloading tweets
-# We extract the info about the rate limits and determine how long
-# R has to be put into sleep before continuing with downloading tweets.
-GetSleepTime <-function(col='resource', row='/search/tweets'){
-  g <- getCurRateLimitInfo()
-  next_time <- as.numeric(g[ g[col]==row,]$reset)
-  current_time <- as.numeric(Sys.time())
-  return(max(0, next_time-current_time))
 }
 
 # Function which reduces every word in txt to its stem.
