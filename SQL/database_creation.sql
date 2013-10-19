@@ -30,12 +30,13 @@ txt CHAR(150) CHARACTER SET utf8,
 cleanTxt CHAR(150) CHARACTER SET utf8,
 score FLOAT(5,2),
 screenName CHAR(20),
+searchTerm CHAR(20),
 PRIMARY KEY (tweet_id),
 FOREIGN KEY (city_id) REFERENCES city(city_id)
 );
 
 ALTER TABLE tweet 
-ADD CONSTRAINT uc_tweet UNIQUE (datetime,screenName)
+ADD CONSTRAINT uc_tweet UNIQUE (datetime,screenName, cleanTxt)
 
 /* Create index on datetime and city_id for fast searches*/
 CREATE INDEX dateCityIndex 
