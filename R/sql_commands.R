@@ -12,8 +12,13 @@ sqlSendQuery <- function(cmd, db_name='sentiment_db', con=NULL){
   }
   tryCatch(dbSendQuery(con, cmd),
            error=function(msg) {
-             message(cat(paste(msg)))
-             message(cmd)
+             if( regexpr('Duplicate entry', msg)[1]!=-1) { 
+               res<-NULL
+             }
+             else{
+               message(cat(paste(msg)))
+               res <- NULL
+             }
            },
            warning=function(msg) {
              res <- NULL
@@ -86,13 +91,13 @@ sqlFillCity <- function(tab='city'){
 
 sqlInsertTweetDF <- function(tw_df){
   Ntweet <- nrow(tw_df)
-  cols <- c('city_id', 'created', 'text', 'cleanText', 'score', 
+  cols <- c('id', 'city_id', 'created', 'text', 'cleanText', 'score', 
             'screenName', 'searchTerm')
   con <- dbConnect( MySQL(), user=usr, password=pw, dbname=db_name, host='localhost')
   for(i in 1:Ntweet){
     tweet <- tw_df[i, cols]
     tweet <- dfValToString(tweet, c('created', 'text', 'cleanText', 'screenName', 'searchTerm'))
-    cmd <- 'INSERT INTO tweet (city_id, datetime, txt, cleanTxt, score, screenName, searchTerm) VALUES'
+    cmd <- 'INSERT INTO tweet (tweet_id, city_id, datetime, txt, cleanTxt, score, screenName, searchTerm) VALUES'
     cmd <- paste(cmd, paste('(',paste(tweet, collapse=","),');'))
     sqlSendQuery(cmd, con=con)
   }
