@@ -35,9 +35,12 @@ DownloadIteration <- function(city=NULL, lex=NULL, maxTweets=1000, term=term){
     city <- sqlGetCity()
   }
   
-  th <- ceiling(maxTweets/1000)
   # Set the threshold for sleeping
-  for( i in 1:nrow(city)){
+  # Seems that it takes one API request per 100 tweets
+  # TODO: pick better threshold
+  th <- 2*ceiling(maxTweets/100)
+  # Take a random order of the cities
+  for( i in sample(nrow(city)) ){
     geocode <- city[i, c('lat', 'lng', 'radius')]
     geocode[3] <- paste(ceiling(10*geocode[3]),'mi',sep='')
     geocode <- paste(geocode, collapse=",")
@@ -83,23 +86,19 @@ Login <- function()
 # rbind() takes all of the rows and puts them together
 # do.call() gives rbind() all the rows as individual elements
 
+# TODO: supressing all warning but only want to suppress warnings
+# with '1000 tweets were requested but API can only return 104'
 SearchTweets <- function(searchTerm, maxTweets, geocode=NULL)
 { 
   twtList <- tryCatch({
     if( is.null(geocode) ){
-      twtList <-searchTwitter(searchTerm, n=maxTweets)
+      suppressWarnings( searchTwitter(searchTerm, n=maxTweets) )
     }
     else {
-      twtList <-searchTwitter(searchTerm, n=maxTweets, geocode=geocode)
+      suppressWarnings( searchTwitter(searchTerm, n=maxTweets, geocode=geocode) )
     }},
     error=function(msg) {
       message(cat(paste(msg)))
-      twtList <- NULL
-    },
-    warning=function(msg) {
-      if( regexpr('tweets were requested but the API can only return', msg)[1]==-1) { 
-        message(cat(paste(msg)))
-      }
     }
   )
   return(do.call("rbind",lapply(twtList,as.data.frame)))
