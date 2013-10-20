@@ -2,11 +2,18 @@ import os
 import jinja2
 import webapp2
 
+from google.appengine.ext.webapp import template
+from google.appengine.ext import db
+import sys
+sys.path.insert(0, 'libs')
+from wtforms.ext.appengine.db import model_form
+import figuresDB
+
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'])
 
-menu = [ ('Home','/'), ('Sentiment','/sentiment') ]
+menu = [ ('Home','/'), ('Sentiment','/sentiment'), ('Post Figures', '/postfigures') ]
 
 class MainPage(webapp2.RequestHandler):
 
@@ -45,7 +52,8 @@ class Sentiment(webapp2.RequestHandler):
         self.response.write(head_tmpl.render())
 
         menu_tmpl = JINJA_ENVIRONMENT.get_template('templates/menu.html')
-        self.response.write(menu_tmpl.render({'active': active}))        
+        self.response.write(menu_tmpl.render({'active': active}))   
+
 
         content = '<h3> Who gets the blame: Republicans or Democrats?</h3>\n'
         content += '</br>\n'
@@ -76,6 +84,31 @@ class Sentiment(webapp2.RequestHandler):
 
         footer_tmpl = JINJA_ENVIRONMENT.get_template('templates/footer.html')
         self.response.write(footer_tmpl.render())
+
+class PostFigures(webapp2.RequestHandler):
+
+    def get(self):
+        active = 'postfigures'
+        figureform = model_form(figuresDB.FigureDetails)()
+
+        head_tmpl = JINJA_ENVIRONMENT.get_template('templates/header.html')
+        self.response.write(head_tmpl.render())
+
+        menu_tmpl = JINJA_ENVIRONMENT.get_template('templates/menu.html')
+        self.response.write(menu_tmpl.render({'active': active}))
+        
+        self.response.write(template.render('templates/figure_form.html', 
+            {'form': figureform, 'sub_value': 'Submit the figure'}))
+
+
+        end_content_tmpl = JINJA_ENVIRONMENT.get_template('templates/end_content.html')
+        self.response.write(end_content_tmpl.render())
+
+        sidebar_tmpl = JINJA_ENVIRONMENT.get_template('templates/sidebar.html')
+        self.response.write(sidebar_tmpl.render())
+
+        footer_tmpl = JINJA_ENVIRONMENT.get_template('templates/footer.html')
+        self.response.write(footer_tmpl.render())  
 
 class FeatureSelector(webapp2.RequestHandler):
 
@@ -197,4 +230,5 @@ class FeatureSelectorCustom(webapp2.RequestHandler):
 application = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/sentiment', Sentiment),
+    ('/postfigures', PostFigures)
 ], debug=True)
