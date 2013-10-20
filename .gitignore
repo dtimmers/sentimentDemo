@@ -3,6 +3,7 @@ OAuth.RData
 
 # Development files
 dev.R
+*.pyc
 
 # History files
 .Rhistory
