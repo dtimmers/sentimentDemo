@@ -1,4 +1,14 @@
-var extTypes= ['csv', 'txt'];
+$( document ).ready(function() {
+
+	$("#figures").change(function(){
+		console.log($('#figures'));
+		console.log(this.files);
+		/*var fn = $("#figure").val().replace(/C:\\fakepath\\/i, '');
+		console.log(fn)*/
+	});
+});
+
+/*var extTypes= ['csv', 'txt'];
 
 function validateForm(formElement) {
 	var path = formElement.csvfile.value;
@@ -23,4 +33,8 @@ function swapPlot() {
 	var image = document.getElementById('significancePlot');
 	var dropd = document.getElementById('plotSelect');
 	image.src = dropd.value;
-};
+};*/
+
+/*	$('#name').attr("disabled", true);
+	$('#date').attr("disabled", true);
+	$('#search_term').attr("disabled", true);*/
