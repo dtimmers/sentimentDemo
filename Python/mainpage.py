@@ -4,9 +4,6 @@ import webapp2
 
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
-import sys
-sys.path.insert(0, 'libs')
-from wtforms.ext.appengine.db import model_form
 import figuresDB
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -96,7 +93,7 @@ class PostFigures(webapp2.RequestHandler):
 
         menu_tmpl = JINJA_ENVIRONMENT.get_template('templates/menu.html')
         self.response.write(menu_tmpl.render({'active': active}))
-        
+
         self.response.write(template.render('templates/figure_form.html', 
             {'form': figureform, 'sub_value': 'Submit the figure'}))
 
