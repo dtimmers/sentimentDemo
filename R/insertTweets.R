@@ -7,7 +7,7 @@ library("stringr")
 # Also Barack Obama uses the term obamacare, otherwise might create difference
 # between positve and negative tweets about obamacare, gogreen
 
-Main <- function(term='obamacare', hrs=1, maxTweets=1000){
+Main <- function(term, hrs=1, maxTweets=1000){
   setwd('~/Projects/sentimentDemo/R')
   source('lexicon.R')
   source('sql_commands.R')
@@ -19,7 +19,7 @@ Main <- function(term='obamacare', hrs=1, maxTweets=1000){
   Ntweets <- 1000
   stop_time <- as.numeric(Sys.time()) + ceiling(hrs*3600)
   
-  while( as.numeric(Sys.time()<stop_time )){
+  while( as.numeric(Sys.time())<stop_time ){
     DownloadIteration(city=city, lex=lex, maxTweets=Ntweets, term=term)
   }
 }
@@ -59,14 +59,6 @@ DownloadIteration <- function(city=NULL, lex=NULL, maxTweets=1000, term=term){
     t <- GetSleepTime(th)
     if( t > 0 ){
       RtoSleep(t)
-    }
-    
-    # Hacker solution as there is an unresolved error with open SQL connections
-    # Close all the open SQL connections if there is more than 1.
-    if( length(dbListConnections(MySQL()))>1 ){
-      for( con in dbListConnections(MySQL()) ){
-        dbDisconnect(con)
-      }
     }
   }
 }
