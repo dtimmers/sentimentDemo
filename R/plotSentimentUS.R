@@ -13,19 +13,20 @@ plotUSstates <- function(term)
   # Get the tweets
   tweets <- sqlGetDateCityScores(term)
   dates <- unique(tweets$date)
-  for( d in rev(dates)[1] ){
+  for( d in dates ){
     tw <- subset( tweets, date==d)
     missing <- setdiff(state.info$state.name, tw$name)
     Nmiss <- length(missing)
     dfMiss <- cbind(rep(d, Nmiss), missing, rep(-2, Nmiss))
     colnames(dfMiss) <- names(tw)
     tw <- rbind(tw, dfMiss)
-    plotSentimentMap(states, tw, state.info)
+    plotSentimentMap(states, tw, state.info, term, d)
   }
 }
 
-plotSentimentMap <- function(states, tw, state.info){
-  # add sentiment scores to states
+plotSentimentMap <- function(states, tw, state.info, term, date,
+                             folder='../Python/img/sentiment'){
+  # add sentiment scores to states  
   states$score <- as.numeric(tw$score[match(states$region, tolower(tw$name))])
   # cutting the state scores into bins
   # a score of 1 represents no available score
@@ -34,9 +35,16 @@ plotSentimentMap <- function(states, tw, state.info){
   idx_NA <- which(is.na(states$score))
   idx_score <- setdiff(1:nrow(states), union(idx_noscore, idx_NA))
   states$bin[idx_score] <- cut(states$score[idx_score], 5, labels=F, include.lowest=T)+1
+  legend_labels <- c('no tweets', 'high neg','neg','neutral','pos','high pos')
   states$bin <-factor(
-    states$bin, labels=c('no tweets', 'high neg','neg','neutral','pos','high pos')
+    states$bin, levels=1:6, labels=legend_labels
     )
+  
+  bin_levels <- sort(unique(states$bin))
+  fill_colors <- c(rgb(192, 192, 192, max=255), rgb(215, 25, 28, max=255), 
+                    rgb(253, 174, 97, max=255), rgb(255, 255, 191, max=255), 
+                    rgb(166, 217, 106, max=255), rgb(26, 150, 65, max=255))
+  cols <- as.list(fill_colors)
   #making sure the latitudes and longitudes do not show
   theme_opts <- list(theme(panel.grid.minor = element_blank(),
                            panel.grid.major = element_blank(),
@@ -49,17 +57,17 @@ plotSentimentMap <- function(states, tw, state.info){
                            axis.ticks = element_blank(),
                            axis.title.x = element_blank(),
                            axis.title.y = element_blank(),
-                           plot.title = element_text(size=22)));
+                           plot.title = element_text(size=16, hjust=0.5)));
   #plot all states with ggplot
   p <- ggplot(states, aes(x=long, y=lat))
   p <- p + 
-    geom_polygon(aes(long, lat, group = group, fill=bin),colour="#C0C0C0" ) + 
-    labs(title="Relative sentiment of the US states") + 
-    guides(fill=guide_legend(title="scores")) +
+    geom_polygon(aes(long, lat, group = group, fill=bin), colour="#666666" ) + 
+    labs(title=paste("Relative sentiment about",term)) + 
+    guides(fill=guide_legend(title='Scores')) +
     geom_text(data = state.info, aes(x = x, y = y, label = state.abb), 
               colour = 'black',size=4) +
-    scale_fill_brewer(palette="Spectral") + 
+    scale_fill_manual(values=fill_colors[bin_levels]) +
     theme_opts
-  #print(p)
-  ggsave("sentiment_plot.png",width=16.510,height=10.668,units="cm")
+  fn <- paste(folder,"/sentimentUS-",term,"-",date,".png",sep='')
+  ggsave(fn,width=16.510,height=10.668,units="cm")
 }
