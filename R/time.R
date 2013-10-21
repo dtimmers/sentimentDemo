@@ -8,7 +8,7 @@
 GetSleepTime <-function(th, col='resource', resource_name='/search/tweets'){
   g <- getCurRateLimitInfo()
   api_row <- g[ g[col]==resource_name,]
-  if( api_row$remaining > th){
+  if( api_row$remaining < th){
     return(0)
   }
   else{
