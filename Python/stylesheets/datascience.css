@@ -160,47 +160,7 @@ body
 #footer {
 	clear:both;
 	background:#cc9;
-}
-
-.error {
-	margin: 10px auto;
-	width: 400px;
-    border: 1px solid;
-    padding:15px 10px 15px 50px;
-    background-repeat: no-repeat;
-    background-position: 10px center;
-    color: #D8000C;
-    background-color: #FFBABA;
-    background-image: url('../img/error.png');
-}
-
-.centered {
-  display: inline-block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-img.centered {
-	display: block;
-	margin-left: auto;
-  margin-right: auto; 
-}
-
-img.left {
-  float:left;
-  margin-right: 20px;
-}
-
-input.right {
-	float: right;
-}
-
-select.selectPlot {
-	display: block;
-	margin-left: auto;
-    margin-right: auto; 
-	padding: 2px;
-    width: 130px;
+  height:50px;
 }
 
 p
@@ -224,4 +184,30 @@ a:hover
 h3
 {
 	margin:0;
+}
+
+img.active_sentiment {
+  display: block;
+  margin-left: auto;
+  margin-right: auto; 
+}
+
+img.nonactive_sentiment {
+  display: none;
+  margin-left: auto;
+  margin-right: auto; 
+}
+
+.buttonWrapper
+{
+  text-align: center;
+}
+
+.checkboxgroup{
+    display:inline-block;
+}
+.checkboxgroup label {
+    display:block;
+    font-size:12px;
+    margin-right:4px;
 }
