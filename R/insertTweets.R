@@ -20,7 +20,7 @@ Main <- function(term, hrs=1, maxTweets=1000){
   stop_time <- as.numeric(Sys.time()) + ceiling(hrs*3600)
   
   while( as.numeric(Sys.time())<stop_time ){
-    DownloadIteration(city=city, lex=lex, maxTweets=Ntweets, term=term)
+    DownloadIteration(city=city, lex=lex, maxTweets=maxTweets, term=term)
   }
 }
 
@@ -82,17 +82,12 @@ Login <- function()
 # with '1000 tweets were requested but API can only return 104'
 SearchTweets <- function(searchTerm, maxTweets, geocode=NULL)
 { 
-  twtList <- tryCatch({
-    if( is.null(geocode) ){
-      suppressWarnings( searchTwitter(searchTerm, n=maxTweets) )
-    }
-    else {
-      suppressWarnings( searchTwitter(searchTerm, n=maxTweets, geocode=geocode) )
-    }},
-    error=function(msg) {
-      message(cat(paste(msg)))
-    }
-  )
+  if( is.null(geocode) ){
+    twtList <- suppressWarnings( searchTwitter(searchTerm, n=maxTweets) )
+  }
+  else {
+    twtList <- suppressWarnings( searchTwitter(searchTerm, n=maxTweets, geocode=geocode) )
+  }
   return(do.call("rbind",lapply(twtList,as.data.frame)))
 }
 
