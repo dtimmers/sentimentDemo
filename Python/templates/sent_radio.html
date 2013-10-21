@@ -1,0 +1,8 @@
+<div class="checkboxgroup">
+{%if checked == value %}
+	<input type="radio" name="figButton" value={{ value }} id={{ value }} checked>
+{% else %}
+	<input type="radio" name="figButton" value={{ value }} id={{ value }}>
+{%endif %}
+	<label for={{ value }}> {{ date }} </label>
+</div>

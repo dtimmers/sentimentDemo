@@ -1,0 +1,11 @@
+<form id="term_form" class="buttonWrapper" method='POST'>
+	<select id='termSelect'>
+		{% for opt in options %}
+			{% if active==opt['value'] %}
+				<option value={{ opt['value']|safe }} selected> {{ opt['name'] }} </option>
+			{% else %}
+				<option value={{ opt['value']|safe }} > {{ opt['name'] }} </option>
+			{% endif %}
+		{% endfor %}
+	</select>
+</form>
