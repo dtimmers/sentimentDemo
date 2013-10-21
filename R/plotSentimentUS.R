@@ -12,6 +12,9 @@ plotUSstates <- function(term)
   
   # Get the tweets
   tweets <- sqlGetDateCityScores(term)
+  if( nrow(tweets)==0 ){
+    stop(paste('There were no tweets in the database with the search term', term))
+  }
   dates <- unique(tweets$date)
   for( d in dates ){
     tw <- subset( tweets, date==d)
@@ -25,7 +28,7 @@ plotUSstates <- function(term)
 }
 
 plotSentimentMap <- function(states, tw, state.info, term, date,
-                             folder='../Python/img/sentiment'){
+                             folder='Figures'){
   # add sentiment scores to states  
   states$score <- as.numeric(tw$score[match(states$region, tolower(tw$name))])
   # cutting the state scores into bins
@@ -68,6 +71,15 @@ plotSentimentMap <- function(states, tw, state.info, term, date,
               colour = 'black',size=4) +
     scale_fill_manual(values=fill_colors[bin_levels]) +
     theme_opts
-  fn <- paste(folder,"/sentimentUS-",term,"-",date,".png",sep='')
+  
+  figDir <-  paste(folder,"sentiment/", term,sep='')
+  path <- file.path(getwd(), folder)
+  dir.create(path, showWarnings = FALSE)
+  path <- file.path(path, "sentiment")
+  dir.create(path, showWarnings = FALSE)
+  path <- file.path(path, term)
+  dir.create(path, showWarnings = FALSE)
+  fn <- paste(path, "/sentimentUS-",term,"-",date,".png",sep='')
+  print(fn)
   ggsave(fn,width=16.510,height=10.668,units="cm")
 }
