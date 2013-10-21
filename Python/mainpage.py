@@ -70,16 +70,17 @@ class Sentiment(webapp2.RequestHandler):
         q_sentfigs = db.GqlQuery("SELECT * FROM Figure WHERE search_term = :search_term ORDER BY date", search_term=active_topic)
 
         
-        active_id = q_sentfigs[0].search_term + q_sentfigs[0].date
+        active_id = q_sentfigs[0].search_term.replace(" ",'#') + q_sentfigs[0].date
         
         for f in q_sentfigs:
             fig_id = f.search_term + f.date
             img_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_img.html')
-            self.response.write(img_tmpl.render({'figurekey': f.key(), 'active': active_id, 'id':fig_id}))
+            self.response.write(img_tmpl.render({'figurekey': f.key(), 'active': active_id, 
+                'id':fig_id.replace(" ",'#')}))
 
         self.response.write("""<div class="buttonWrapper">""")
         for f in q_sentfigs:
-            value = f.search_term + f.date
+            value = f.search_term.replace(' ', '#') + f.date
             radio_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_radio.html')
             self.response.write(radio_tmpl.render({'value': value, 'checked':active_id, 'date':f.date}))
         self.response.write("</div>")
@@ -98,7 +99,6 @@ class Sentiment(webapp2.RequestHandler):
     def post(self):
         active = 'sentiment'
         active_topic = self.request.get('searchTerm').replace('#', ' ')
-        print(active_topic)
 
         head_tmpl = JINJA_ENVIRONMENT.get_template('templates/header.html')
         self.response.write(head_tmpl.render())
@@ -127,16 +127,17 @@ class Sentiment(webapp2.RequestHandler):
         q_sentfigs = db.GqlQuery("SELECT * FROM Figure WHERE search_term = :search_term ORDER BY date", search_term=active_topic)
 
         
-        active_id = q_sentfigs[0].search_term + q_sentfigs[0].date
+        active_id = q_sentfigs[0].search_term.replace(" ",'#') + q_sentfigs[0].date
         
         for f in q_sentfigs:
             fig_id = f.search_term + f.date
             img_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_img.html')
-            self.response.write(img_tmpl.render({'figurekey': f.key(), 'active': active_id, 'id':fig_id}))
+            self.response.write(img_tmpl.render({'figurekey': f.key(), 'active': active_id, 
+                'id':fig_id.replace(" ",'#')}))
 
         self.response.write("""<div class="buttonWrapper">""")
         for f in q_sentfigs:
-            value = f.search_term + f.date
+            value = f.search_term.replace(' ', '#') + f.date
             radio_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_radio.html')
             self.response.write(radio_tmpl.render({'value': value, 'checked':active_id, 'date':f.date}))
         self.response.write("</div>")
