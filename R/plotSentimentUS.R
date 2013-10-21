@@ -49,7 +49,7 @@ plotSentimentMap <- function(states, tw, state.info, term, date,
                     rgb(253, 174, 97, max=255), rgb(255, 255, 191, max=255), 
                     rgb(166, 217, 106, max=255), rgb(26, 150, 65, max=255))
   cols <- as.list(fill_colors)
-  #making sure the latitudes and longitudes do not show
+  # making sure the latitudes and longitudes do not show
   theme_opts <- list(theme(panel.grid.minor = element_blank(),
                            panel.grid.major = element_blank(),
                            panel.background = element_blank(),
@@ -62,7 +62,7 @@ plotSentimentMap <- function(states, tw, state.info, term, date,
                            axis.title.x = element_blank(),
                            axis.title.y = element_blank(),
                            plot.title = element_text(size=16, hjust=0.5)));
-  #plot all states with ggplot
+  # convert date to nicer format format(date, format="%d %B %Y")
   p <- ggplot(states, aes(x=long, y=lat))
   p <- p + 
     geom_polygon(aes(long, lat, group = group, fill=bin), colour="#666666" ) + 
