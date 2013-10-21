@@ -37,7 +37,8 @@ plotSentimentMap <- function(states, tw, state.info, term, date,
   idx_noscore <- which(states$score==-2)
   idx_NA <- which(is.na(states$score))
   idx_score <- setdiff(1:nrow(states), union(idx_noscore, idx_NA))
-  states$bin[idx_score] <- cut(states$score[idx_score], 5, labels=F, include.lowest=T)+1
+  #states$bin[idx_score] <- cut(states$score[idx_score], 5, labels=F, include.lowest=T)+1
+  states$bin[idx_score] <- sapply(states$score[idx_score], score_to_factor)
   legend_labels <- c('no tweets', 'high neg','neg','neutral','pos','high pos')
   states$bin <-factor(
     states$bin, levels=1:6, labels=legend_labels
@@ -65,7 +66,7 @@ plotSentimentMap <- function(states, tw, state.info, term, date,
   p <- ggplot(states, aes(x=long, y=lat))
   p <- p + 
     geom_polygon(aes(long, lat, group = group, fill=bin), colour="#666666" ) + 
-    labs(title=paste("Relative sentiment about",term)) + 
+    labs(title=paste("Sentiment about",term)) + 
     guides(fill=guide_legend(title='Scores')) +
     geom_text(data = state.info, aes(x = x, y = y, label = state.abb), 
               colour = 'black',size=4) +
@@ -80,6 +81,15 @@ plotSentimentMap <- function(states, tw, state.info, term, date,
   path <- file.path(path, term)
   dir.create(path, showWarnings = FALSE)
   fn <- paste(path, "/sentimentUS-",term,"-",date,".png",sep='')
-  print(fn)
   ggsave(fn,width=16.510,height=10.668,units="cm")
+}
+
+score_to_factor <- function(x){
+  score <- ifelse(x==-2, 1,
+              ifelse( -1 <= x & x < -0.6, 2,
+                      ifelse(-0.6 <= x & x< -0.2, 3,
+                             ifelse( -0.2 <= x & x < 0.2, 4,
+                                     ifelse(0.2 <= x & x < 0.6, 5,
+                                            ifelse(0.6 <= x & x <= 1, 6, NA))))))
+  return(score)
 }
