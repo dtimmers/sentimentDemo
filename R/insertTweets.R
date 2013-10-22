@@ -3,6 +3,7 @@ library("RCurl")
 library("RJSONIO")
 library("twitteR")
 library("stringr")
+setwd('~/Projects/sentimentDemo/R')
 # If we search a 1000 Tweets, it takes 10 API requests
 # Also Barack Obama uses the term obamacare, otherwise might create difference
 # between positve and negative tweets about obamacare, gogreen
@@ -16,7 +17,6 @@ Main <- function(term, hrs=1, maxTweets=1000){
   Login()
   lex <- GetLex()
   city <- sqlGetCity()
-  Ntweets <- 1000
   stop_time <- as.numeric(Sys.time()) + ceiling(hrs*3600)
   
   while( as.numeric(Sys.time())<stop_time ){
@@ -82,13 +82,18 @@ Login <- function()
 # with '1000 tweets were requested but API can only return 104'
 SearchTweets <- function(searchTerm, maxTweets, geocode=NULL)
 { 
-  if( is.null(geocode) ){
-    twtList <- suppressWarnings( searchTwitter(searchTerm, n=maxTweets) )
-  }
-  else {
-    twtList <- suppressWarnings( searchTwitter(searchTerm, n=maxTweets, geocode=geocode) )
-  }
-  return(do.call("rbind",lapply(twtList,as.data.frame)))
+  tryCatch({
+    if( is.null(geocode) ){
+      twtList <- suppressWarnings( searchTwitter(searchTerm, n=maxTweets) )
+    }
+    else {
+      twtList <- suppressWarnings( searchTwitter(searchTerm, n=maxTweets, geocode=geocode) )
+    }
+    return(do.call("rbind",lapply(twtList,as.data.frame)))},
+    error=function(msg){
+      message(cat(paste(msg)))
+    }
+  )
 }
 
 # clean up the tweet texts by removing hashtags, years, etc.

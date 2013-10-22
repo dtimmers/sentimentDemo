@@ -2,6 +2,7 @@ library(RMySQL)
 usr <- 'Ruser'
 pw <- 'ouRs3cret!'
 db_name <- 'sentiment_db'
+setwd('~/Projects/sentimentDemo/R')
 
 # Opens a connection to the database and sends a query
 sqlSendQuery <- function(cmd, con=NULL){

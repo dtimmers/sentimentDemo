@@ -1,6 +1,7 @@
 library("ggplot2")
 library("maps")
 library("RColorBrewer")
+setwd('~/Projects/sentimentDemo/R')
 
 plotUSstates <- function(term)
 {
@@ -49,6 +50,8 @@ plotSentimentMap <- function(states, tw, state.info, term, date,
                     rgb(253, 174, 97, max=255), rgb(255, 255, 191, max=255), 
                     rgb(166, 217, 106, max=255), rgb(26, 150, 65, max=255))
   cols <- as.list(fill_colors)
+  # change date into nicer format
+  date_str <- format(as.Date(date, format="%Y-%m-%d"), format="%d %b %Y")
   # making sure the latitudes and longitudes do not show
   theme_opts <- list(theme(panel.grid.minor = element_blank(),
                            panel.grid.major = element_blank(),
@@ -66,7 +69,7 @@ plotSentimentMap <- function(states, tw, state.info, term, date,
   p <- ggplot(states, aes(x=long, y=lat))
   p <- p + 
     geom_polygon(aes(long, lat, group = group, fill=bin), colour="#666666" ) + 
-    labs(title=paste("Sentiment about",term)) + 
+    labs(title=paste("Sentiment about ",term,"-",date_str,sep="")) + 
     guides(fill=guide_legend(title='Scores')) +
     geom_text(data = state.info, aes(x = x, y = y, label = state.abb), 
               colour = 'black',size=4) +
