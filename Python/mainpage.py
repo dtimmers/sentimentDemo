@@ -50,7 +50,7 @@ class Sentiment(webapp2.RequestHandler):
         self.response.write(menu_tmpl.render({'active': active}))
 
 
-        content = "<p> I wrote a program in R which downloads tweets from Twitter on a given topic (tried 'obamacare' and 'biking' sofar). These tweets are used to do a sentiment analysis on the given topics usig the <a href='http://mpqa.cs.pitt.edu/lexicons/subj_lexicon/' target='_blank'> MPQA Subjectivity Lexicon </a>. The Subjectivity Lexicon is a list of words which are scored between -1 and +1. A score of -1 corresponds to a negative sentiment while +1 corresponds to a positive sentiment. By downloading tweets in every state of the US and using the Subjectivity Lexicon to compute the average score, you get a sentiment score per topic per state. The average scores are mapped into a heatmap of the US.</p>"
+        content = "<p> I wrote a program in R which downloads tweets from Twitter on a given topic (tried 'obamacare' and 'biking' so far). These tweets are used for a sentiment analysis on the given topics using the <a href='http://mpqa.cs.pitt.edu/lexicons/subj_lexicon/' target='_blank'> MPQA Subjectivity Lexicon </a>. The Subjectivity Lexicon is a list of words which are scored between -1 and +1. A score of -1 corresponds to a negative sentiment while +1 corresponds to a positive sentiment. Hence, each individual tweet can be scored by averaging over the sentiment scores of the words. I further aggregated the scores by averaging the tweet scores over every state (except Hawaii and Alaska) of the US. These scores are presented the findings in a heatmap.</p>"
 
         content += '<h4> Heatmap of the states </h4>\n'
 
@@ -58,34 +58,37 @@ class Sentiment(webapp2.RequestHandler):
 
         q_term = db.GqlQuery("SELECT DISTINCT search_term FROM Figure")
 
-        options = []
-        for f in q_term:
-            options.append({'value': f.search_term.replace(" ","#"), 'name': f.search_term})
-        active_topic = options[0]['name']
+        if( q_term.count() > 0):
 
-        select_tmpl = JINJA_ENVIRONMENT.get_template('templates/select_term.html')
-        self.response.write(select_tmpl.render({'options': options, 'active': active_topic}))
+            options = []
+            for f in q_term:
+                options.append({'value': f.search_term.replace(" ","#"), 'name': f.search_term})
+            active_topic = options[0]['name']
 
-        # select all sentiment figures from the active topic
-        q_sentfigs = db.GqlQuery("SELECT * FROM Figure WHERE search_term = :search_term ORDER BY date", search_term=active_topic)
+            select_tmpl = JINJA_ENVIRONMENT.get_template('templates/select_term.html')
+            self.response.write(select_tmpl.render({'options': options, 'active': active_topic}))
 
-        
-        active_id = q_sentfigs[0].search_term.replace(" ",'#') + q_sentfigs[0].date
-        
-        for f in q_sentfigs:
-            fig_id = f.search_term + f.date
-            img_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_img.html')
-            self.response.write(img_tmpl.render({'figurekey': f.key(), 'active': active_id, 
-                'id':fig_id.replace(" ",'#')}))
+            # select all sentiment figures from the active topic
+            q_sentfigs = db.GqlQuery("SELECT * FROM Figure WHERE search_term = :search_term ORDER BY date", search_term=active_topic)
 
-        self.response.write("""<div class="buttonWrapper">""")
-        for f in q_sentfigs:
-            value = f.search_term.replace(' ', '#') + f.date
-            radio_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_radio.html')
-            self.response.write(radio_tmpl.render({'value': value, 'checked':active_id, 'date':f.date}))
-        self.response.write("</div>")
+            
+            active_id = q_sentfigs[0].search_term.replace(" ",'#') + q_sentfigs[0].date
+            
+            for f in q_sentfigs:
+                fig_id = f.search_term + f.date
+                img_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_img.html')
+                self.response.write(img_tmpl.render({'figurekey': f.key(), 'active': active_id, 
+                    'id':fig_id.replace(" ",'#')}))
 
-        
+            self.response.write("""<div class="centerWrapper">""")
+            for f in q_sentfigs:
+                value = f.search_term.replace(' ', '#') + f.date
+                radio_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_radio.html')
+                self.response.write(radio_tmpl.render({'value': value, 'checked':active_id, 'date':f.date}))
+            self.response.write("</div>")
+
+        else:
+            self.response.write("Unfortunately, there are no figures in the database yet. Please come back later.")
 
         end_content_tmpl = JINJA_ENVIRONMENT.get_template('templates/end_content.html')
         self.response.write(end_content_tmpl.render())
@@ -107,40 +110,42 @@ class Sentiment(webapp2.RequestHandler):
         self.response.write(menu_tmpl.render({'active': active}))
 
 
-        content = "<p> I wrote a program in R which downloads tweets from Twitter on a given topic (tried 'obamacare' and 'biking' sofar). These tweets are used to do a sentiment analysis on the given topics usig the <a href='http://mpqa.cs.pitt.edu/lexicons/subj_lexicon/' target='_blank'> MPQA Subjectivity Lexicon </a>. The Subjectivity Lexicon is a list of words which are scored between -1 and +1. A score of -1 corresponds to a negative sentiment while +1 corresponds to a positive sentiment. By downloading tweets in every state of the US and using the Subjectivity Lexicon to compute the average score, you get a sentiment score per topic per state. The average scores are mapped into a heatmap of the US.</p>"
+        content = "<p> I wrote a program in R which downloads tweets from Twitter on a given topic (tried 'obamacare' and 'biking' so far). These tweets are used for a sentiment analysis on the given topics using the <a href='http://mpqa.cs.pitt.edu/lexicons/subj_lexicon/' target='_blank'> MPQA Subjectivity Lexicon </a>. The Subjectivity Lexicon is a list of words which are scored between -1 and +1. A score of -1 corresponds to a negative sentiment while +1 corresponds to a positive sentiment. Hence, each individual tweet can be scored by averaging over the sentiment scores of the words. I further aggregated the scores by averaging the tweet scores over every state (except Hawaii and Alaska) of the US. These scores are presented the findings in a heatmap.</p>"
 
         content += '<h4> Heatmap of the states </h4>\n'
 
         self.response.write( content )
-
         q_term = db.GqlQuery("SELECT DISTINCT search_term FROM Figure")
 
-        options = []
-        for f in q_term:
-            options.append({'value': f.search_term.replace(" ","#"), 'name': f.search_term})
+        if( q_term.count() > 0):
+            options = []
+            for f in q_term:
+                options.append({'value': f.search_term.replace(" ","#"), 'name': f.search_term})
 
-        select_tmpl = JINJA_ENVIRONMENT.get_template('templates/select_term.html')
-        self.response.write(select_tmpl.render({'options': options, 'active': active_topic}))
+            select_tmpl = JINJA_ENVIRONMENT.get_template('templates/select_term.html')
+            self.response.write(select_tmpl.render({'options': options, 'active': active_topic}))
 
-        # select all sentiment figures from the active topic
+            # select all sentiment figures from the active topic
 
-        q_sentfigs = db.GqlQuery("SELECT * FROM Figure WHERE search_term = :search_term ORDER BY date", search_term=active_topic)
+            q_sentfigs = db.GqlQuery("SELECT * FROM Figure WHERE search_term = :search_term ORDER BY date", search_term=active_topic)
 
-        
-        active_id = q_sentfigs[0].search_term.replace(" ",'#') + q_sentfigs[0].date
-        
-        for f in q_sentfigs:
-            fig_id = f.search_term + f.date
-            img_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_img.html')
-            self.response.write(img_tmpl.render({'figurekey': f.key(), 'active': active_id, 
-                'id':fig_id.replace(" ",'#')}))
+            active_id = q_sentfigs[0].search_term.replace(" ",'#') + q_sentfigs[0].date
+            
+            for f in q_sentfigs:
+                fig_id = f.search_term + f.date
+                img_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_img.html')
+                self.response.write(img_tmpl.render({'figurekey': f.key(), 'active': active_id, 
+                    'id':fig_id.replace(" ",'#')}))
 
-        self.response.write("""<div class="buttonWrapper">""")
-        for f in q_sentfigs:
-            value = f.search_term.replace(' ', '#') + f.date
-            radio_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_radio.html')
-            self.response.write(radio_tmpl.render({'value': value, 'checked':active_id, 'date':f.date}))
-        self.response.write("</div>")
+            self.response.write("""<div class="centerWrapper">""")
+            for f in q_sentfigs:
+                value = f.search_term.replace(' ', '#') + f.date
+                radio_tmpl = JINJA_ENVIRONMENT.get_template('templates/sent_radio.html')
+                self.response.write(radio_tmpl.render({'value': value, 'checked':active_id, 'date':f.date}))
+            self.response.write("</div>")
+        else:
+            self.response.write("Unfortunately, there are no figures in the database yet. Please come back later.")
+             
 
         
 
@@ -201,7 +206,7 @@ class PostFigures(webapp2.RequestHandler):
 
             new_figure.figure = file_data.value
 
-            #new_figure.put()
+            new_figure.put()
 
             self.response.write("Successfully uploaded " + file_data.filename + "</br>")
 
